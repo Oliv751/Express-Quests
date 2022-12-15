@@ -1,25 +1,33 @@
 const database = require("./database");
 
 const getUsers = (req, res) => {
-  let sql = "select * from users";
-  const sqlValues = [];
+  const initialSql = "select firstname, lastname, email, city, language from users";
+  const where = [];
 
+  if (req.query.city != null) {
+    where.push({
+      column: "city",
+      value: req.query.city,
+      operator: "=",
+    });
+  }
   if (req.query.language != null) {
-    sql += " where language = ?";
-    sqlValues.push(req.query.language);
-
-    if (req.query.city != null) { 
-      sql += " and city = ?";
-      sqlValues.push(req.query.city);
-    }
-  } else if (req.query.city != null) {
-    sql += " where city = ?";
-    sqlValues.push(req.query.city);
+    where.push({
+      column: "language",
+      value: req.query.language,
+      operator: "=",
+    });
   }
 
-
   database
-    .query(sql, sqlValues)
+    .query(
+      where.reduce(
+        (sql, { column, operator }, index) =>
+          `${sql} ${index === 0 ? "where" : "and"} ${column} ${operator} ?`,
+        initialSql
+      ),
+      where.map(({ value }) => value)
+    )
     .then(([users]) => {
       res.json(users);
     })
@@ -33,7 +41,7 @@ const getUserById = (req, res) => {
   const id = parseInt(req.params.id);
 
   database
-    .query("select * from users where id = ?", [id])
+    .query("select firstname, lastname, email, city, language from users where id = ?", [id])
     .then(([users]) => {
       if (users[0] != null) {
         res.json(users[0]);
@@ -48,12 +56,13 @@ const getUserById = (req, res) => {
 };
 
 const postUser = (req, res) => {
-  const { firstname, lastname, email, city, language } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
-      "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [firstname, lastname, email, city, language]
+      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstname, lastname, email, city, language, hashedPassword]
     )
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);
@@ -62,7 +71,8 @@ const postUser = (req, res) => {
       console.error(err);
       res.status(500).send("Error saving the user");
     });
-  }
+};
+
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
   const { firstname, lastname, email, city, language } = req.body;
