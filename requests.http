@@ -6,7 +6,7 @@ GET http://localhost:5000/api/users
 ###
 
 # GET an existing user
-GET http://localhost:5000/api/users/1
+GET http://localhost:5000/api/users/9
 
 ###
 
@@ -20,8 +20,59 @@ POST http://localhost:5000/api/users
 Content-Type: application/json
 
 {
-    "firstname": "mya",
-    "lastname": "fu",
-    "email": "me2@mail.com",
+    "firstname": "momo",
+    "lastname": "ryu",
+    "email": "momo@gmail.com",
     "password": "123456"
+}
+
+###
+
+# LOGIN
+POST http://localhost:5000/api/login/
+Content-type: application/json
+
+{
+  "email": "momo@gmail.com",
+  "password": "123456"
+}
+
+###
+
+# GET all movies
+GET http://localhost:5000/api/movies
+
+###
+
+# GET an existing movie
+GET http://localhost:5000/api/movies/1
+
+
+###
+
+# POST a new movie
+POST http://localhost:5000/api/movies
+Content-type: application/json
+
+{
+  "title": "Matrix",
+  "director": "Brothers",
+  "year": "2000",
+  "color": "0",
+  "duration": 240
+}
+
+###
+
+# POST a new movie WITH authorization
+POST http://localhost:5000/api/movies
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjksImlhdCI6MTY3Mjc1NDg5NiwiZXhwIjoxNjcyNzU4NDk2fQ.5SsRDz6gkiRLOZa90p_e337okhgnLGSA2gUxTDa7fzU
+Content-type: application/json
+
+{
+  "title": "Matrix",
+  "director": "Brothers",
+  "year": "2000",
+  "color": "0",
+  "duration": 240
 }
