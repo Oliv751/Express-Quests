@@ -7,6 +7,8 @@ const port = process.env.APP_PORT ?? 5000;
 const movieHandlers = require("./movieHandlers");
 const userHandlers = require("./userHandlers");
 
+const { validateMovie, validateUser } = require("./validators.js");
+
 const { hashPassword, verifyPassword, verifyToken } = require("./auth.js");
 
 const welcome = (req, res) => {
@@ -21,7 +23,7 @@ app.get("/api/movies/:id", movieHandlers.getMovieById);
 app.get("/api/users", userHandlers.getUsers);
 app.get("/api/users/:id", userHandlers.getUserById);
 
-app.post("/api/users", hashPassword, userHandlers.postUser);
+app.post("/api/users", validateUser, hashPassword, userHandlers.postUser);
 
 app.post(
   "/api/login",
@@ -34,11 +36,11 @@ app.post(
 
 app.use(verifyToken); // authentication wall : verifyToken is activated for each route after this line
 
-app.post("/api/movies", movieHandlers.postMovie);
-app.put("/api/movies/:id", movieHandlers.updateMovie);
+app.post("/api/movies", validateMovie, movieHandlers.postMovie);
+app.put("/api/movies/:id", validateMovie, movieHandlers.updateMovie);
 app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 
-app.put("/api/users/:id", hashPassword, userHandlers.updateUser);
+app.put("/api/users/:id", validateUser, hashPassword, userHandlers.updateUser);
 app.delete("/api/users/:id", userHandlers.deleteUser);
 
 app.listen(port, (err) => {
